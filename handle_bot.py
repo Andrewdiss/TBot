@@ -10,35 +10,23 @@ class HandleBot(object):
         self.API_token = self.config.get('TelegramBotReg', 'api_token')
         self.url = "https://api.telegram.org/bot{0}/".format(self.API_token)
 
-    def start_processing(self):
-        try:
-            udpades_json = self.get_updates_json()
-            log.info('bot response is OK')
-        except Exception as e:
-            log.error("can`t get Updates")
+    def get_updates(self, offset=None, timeout=30):
+        method = 'getUpdates'
+        params = {'timeout': timeout, 'offset': offset}
+        response_bot = requests.get(self.url + method, data=params)
+        result_json = response_bot.json()['result']
+        return result_json
 
-        chat_id = self.get_chaT_id(self.last_update(udpades_json))
-        self.send_message(chat_id, 'Zdarova eblan')
-
-        return chat_id
-
-    def get_updates_json(self):
-        response_bot = requests.get(self.url + "getUpdates")
-        return response_bot.json()
-
-    @staticmethod
-    def last_update(data):
-        results = data['result']
-        total_updates = len(results) - 1
-        return results[total_updates]
-
-    @staticmethod
-    def get_chaT_id(update):
-        chat_id = update['message']['chat']['id']
-        return chat_id
-
-    def send_message(self, chat, text):
-        params = {'chat_id': chat, 'text': text}
-        response = requests.post(self.url + 'sendMessage', data=params)
+    def send_message(self, chat_id, text):
+        method = 'sendMessage'
+        params = {'chat_id': chat_id, 'text': text}
+        response = requests.post(self.url + method, data=params)
         return response
 
+    def last_update(self):
+        get_result = self.get_updates()
+        if len(get_result) > 0:
+            last_upd = get_result[-1]
+        else:
+            last_upd = get_result[len(get_result)]
+        return last_upd
