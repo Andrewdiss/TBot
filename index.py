@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 from datetime import datetime
-from firstBot.handle_bot import HandleBot
+from handle_bot import HandleBot
 
 greetings = ('hello', 'hi', 'good day to you!', 'привет', "ку")
 now = datetime.now()
